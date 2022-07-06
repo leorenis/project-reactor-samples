@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class MonoTest {
+
     @Test
     public void test() {
         log.info("Setup");
