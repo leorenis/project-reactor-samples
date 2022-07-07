@@ -18,11 +18,42 @@ public class MonoTest {
 
         mono.subscribe();
 
+        log.info("---------------------");
+
         StepVerifier.create(mono)
                 .expectNext(nome)
                 .verifyComplete();
 
         log.info("Mono {}", mono);
-        log.info("Setup");
+    }
+
+
+    @Test
+    public void monoSubscriberConsumer() {
+        var nome = "John Doe";
+        var mono = Mono.just(nome).log();
+
+        mono.subscribe(s -> log.info("Value {}", s));
+
+        log.info("---------------------");
+
+        StepVerifier.create(mono)
+                .expectNext(nome)
+                .verifyComplete();
+    }
+
+    @Test
+    public void monoSubscriberConsumerError() {
+        var nome = "John Doe";
+        var mono = Mono.just(nome).map(s -> { throw new RuntimeException("Testing mono with error"); });
+
+        mono.subscribe(s -> log.info("Nome {}", s), s -> log.error("Something bad happened"));
+        mono.subscribe(s -> log.info("Nome {}", s), Throwable::printStackTrace);
+
+        log.info("---------------------");
+
+        StepVerifier.create(mono)
+                .expectError(RuntimeException.class)
+                .verify();
     }
 }
