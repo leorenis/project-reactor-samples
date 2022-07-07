@@ -128,4 +128,34 @@ public class MonoTest {
                 .expectNext(nome.toUpperCase())
                 .verifyComplete();*/
     }
+
+
+    @Test
+    public void monoDoOnError() {
+        var error = Mono.error(new IllegalArgumentException("Ops, Illegal argument"))
+                .doOnError(e -> log.error("Error message: {}", e.getMessage()))
+                .doOnNext(s -> log.info("Executing this doOnNext"))
+                .log();
+
+         StepVerifier.create(error)
+                .expectError(IllegalArgumentException.class)
+                .verify();
+
+    }
+
+    @Test
+    public void monoDoOnErrorResume() {
+        var error = Mono.error(new IllegalArgumentException("Ops, Illegal argument"))
+                .doOnError(e -> log.error("Error message: {}", e.getMessage()))
+                .onErrorResume(s -> {
+                    log.info("Inside on error resume");
+                    return Mono.just("John Mcfee");
+                })
+                .log();
+
+        StepVerifier.create(error)
+                .expectNext(IllegalArgumentException.class)
+                .verifyComplete();
+
+    }
 }
